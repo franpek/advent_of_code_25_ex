@@ -73,7 +73,6 @@ defmodule Lobby do
   end
 
   def get_higher_battery_dozen(bank) do
-
     digits = String.graphemes(bank)
     to_remove = length(digits) - 12
 
@@ -90,7 +89,6 @@ defmodule Lobby do
 
     {stack_rev, remaining} =
       Enum.reduce(digits, {[], to_remove}, fn d, {stack, rem} ->
-
         {stack_after_pops, rem_after} = pop_while_smaller(stack, d, rem)
         {[d | stack_after_pops], rem_after}
       end)
@@ -106,7 +104,8 @@ defmodule Lobby do
     end
   end
 
-  defp pop_while_smaller([top | rest], digit, rem) when rem > 0 and top < digit, do: pop_while_smaller(rest, digit, rem - 1)
+  defp pop_while_smaller([top | rest], digit, rem) when rem > 0 and top < digit,
+    do: pop_while_smaller(rest, digit, rem - 1)
+
   defp pop_while_smaller(stack, _digit, rem), do: {stack, rem}
 end
-
