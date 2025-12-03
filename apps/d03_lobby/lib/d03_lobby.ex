@@ -46,4 +46,67 @@ defmodule Lobby do
 
     String.to_integer(n1 <> n2)
   end
+
+  @doc """
+  Method to get from an unrearrangeable bank of batteries, take the twelve of higher value
+  It is achieved by eliminating low number from left to right
+
+  ## Examples
+
+      iex> Lobby.larger_maximum_joltage("files/example.txt")
+      3121910778619
+
+      iex> Lobby.larger_maximum_joltage("files/sample.txt")
+      172167155440541
+
+  """
+  def larger_maximum_joltage(path) do
+    banks =
+      File.read!(path)
+      |> String.split("\r\n", trim: true)
+
+    higher_batteries =
+      banks
+      |> Enum.map(&get_higher_battery_dozen/1)
+
+    higher_batteries |> Enum.sum()
+  end
+
+  def get_higher_battery_dozen(bank) do
+
+    digits = String.graphemes(bank)
+    to_remove = length(digits) - 12
+
+    digits
+    |> build_max_number(to_remove)
+    |> Enum.join()
+    |> String.to_integer()
+  end
+
+  defp build_max_number(digits, to_remove) when to_remove <= 0, do: digits
+
+  defp build_max_number(digits, to_remove) do
+    IO.inspect(digits)
+
+    {stack_rev, remaining} =
+      Enum.reduce(digits, {[], to_remove}, fn d, {stack, rem} ->
+
+        {stack_after_pops, rem_after} = pop_while_smaller(stack, d, rem)
+        {[d | stack_after_pops], rem_after}
+      end)
+
+    stack = Enum.reverse(stack_rev)
+    IO.inspect(stack)
+
+    if remaining > 0 do
+      keep = length(stack) - remaining
+      Enum.take(stack, keep)
+    else
+      stack
+    end
+  end
+
+  defp pop_while_smaller([top | rest], digit, rem) when rem > 0 and top < digit, do: pop_while_smaller(rest, digit, rem - 1)
+  defp pop_while_smaller(stack, _digit, rem), do: {stack, rem}
 end
+
