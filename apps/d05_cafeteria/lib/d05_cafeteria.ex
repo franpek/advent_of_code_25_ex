@@ -4,19 +4,19 @@ defmodule Cafeteria do
   """
 
   @doc """
-  Method to count obtain the number of fresh ingredients based on the new cafeteria's database, which has ranges of
+  Method to count get the number of fresh ingredients based on the new cafeteria's database, which has ranges of
   fresh ingredients and a list of available ones
 
   ## Examples
 
-      iex> Cafeteria.count_fresh_ingredients("files/example.txt")
+      iex> Cafeteria.count_available_fresh_ingredients("files/example.txt")
       3
 
-      iex> Cafeteria.count_fresh_ingredients("files/sample.txt")
+      iex> Cafeteria.count_available_fresh_ingredients("files/sample.txt")
       712
 
   """
-  def count_fresh_ingredients(path) do
+  def count_available_fresh_ingredients(path) do
     ingredient_database =
       File.read!(path)
       |> String.split("\r\n\r\n")
@@ -89,5 +89,36 @@ defmodule Cafeteria do
 
       {:overlaps, new_start..new_end}
     end
+  end
+
+  @doc """
+  Method to count get the number of registered fresh ingredients based on the new cafeteria's database, taking only into
+  account the ranges of defined fresh ones, not the available
+
+  ## Examples
+
+      iex> Cafeteria.count_fresh_ingredients("files/example.txt")
+      14
+
+      iex> Cafeteria.count_fresh_ingredients("files/sample.txt")
+      332998283036769
+
+  """
+  def count_fresh_ingredients(path) do
+    ingredient_database =
+      File.read!(path)
+      |> String.split("\r\n\r\n")
+      |> Enum.map(&String.split(&1, "\r\n"))
+
+    fresh_ing_ranges =
+      ingredient_database
+      |> hd
+      |> Enum.map(&format_range/1)
+      |> Enum.sort()
+      |> Enum.reduce([], &reduce_merging_ranges/2)
+
+    fresh_ing_ranges
+    |> Enum.map(&Enum.count/1)
+    |> Enum.sum()
   end
 end
