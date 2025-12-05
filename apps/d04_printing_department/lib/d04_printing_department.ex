@@ -17,7 +17,7 @@ defmodule PrintingDepartment do
 
   """
 
-  def solve(path) do
+  def accesible_rolls(path) do
     diagram =
       File.read!(path)
       |> String.split("\r\n", trim: true)
