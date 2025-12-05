@@ -118,7 +118,7 @@ defmodule Cafeteria do
       |> Enum.reduce([], &reduce_merging_ranges/2)
 
     fresh_ing_ranges
-    |> Enum.map(&Enum.count/1)
+    |> Enum.map(fn range -> range.last - range.first + 1 end)
     |> Enum.sum()
   end
 end
