@@ -136,9 +136,7 @@ defmodule Laboratories do
   end
 
   defp count_paths_memo(position = {y, x}, visited, splitters, height, width, memo) do
-
     cond do
-
       y >= height or x < 0 or x >= width ->
         {1, memo}
 
@@ -151,8 +149,11 @@ defmodule Laboratories do
       MapSet.member?(splitters, position) ->
         new_visited = MapSet.put(visited, position)
 
-        {left_count, memo1} = count_paths_memo({y, x - 1}, new_visited, splitters, height, width, memo)
-        {right_count, memo2} = count_paths_memo({y, x + 1}, new_visited, splitters, height, width, memo1)
+        {left_count, memo1} =
+          count_paths_memo({y, x - 1}, new_visited, splitters, height, width, memo)
+
+        {right_count, memo2} =
+          count_paths_memo({y, x + 1}, new_visited, splitters, height, width, memo1)
 
         total = left_count + right_count
         new_memo = Map.put(memo2, position, total)
@@ -160,7 +161,10 @@ defmodule Laboratories do
 
       true ->
         new_visited = MapSet.put(visited, position)
-        {count, new_memo} = count_paths_memo({y + 1, x}, new_visited, splitters, height, width, memo)
+
+        {count, new_memo} =
+          count_paths_memo({y + 1, x}, new_visited, splitters, height, width, memo)
+
         new_memo = Map.put(new_memo, position, count)
         {count, new_memo}
     end
