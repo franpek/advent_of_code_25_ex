@@ -4,8 +4,9 @@ defmodule Playground do
   """
 
   @doc """
-  Method to obtain the size of the three largest circuits generated from joining them based on the ones with the
-  shortest distance between then
+  Method to get the size of the three largest circuits generated from joining them based on the ones with the
+  shortest distance between them
+  Inspect the first 10 pairs on the example and 1000 on the sample
 
   ## Examples
 
@@ -38,10 +39,10 @@ defmodule Playground do
     base_junction_map = init_union_find(junction_boxes)
 
     junction_map =
-    junction_pairs
-    |> Enum.reduce(base_junction_map, fn {j1, j2, _dist}, acc ->
-      union(acc, j1, j2)
-    end)
+      junction_pairs
+      |> Enum.reduce(base_junction_map, fn {j1, j2, _dist}, acc ->
+        union(acc, j1, j2)
+      end)
 
     circuit_sizes =
       junction_boxes
@@ -85,5 +86,62 @@ defmodule Playground do
     end
   end
 
+  @doc """
+  Method to get the size of the product of the X coordinates of the last two junction boxes in a single circuit
+
+  ## Examples
+
+      iex> Playground.last_junction_pairs_x_product("files/example.txt")
+      25272
+
+      iex> Playground.last_junction_pairs_x_product("files/sample.txt")
+      1131823407
+  """
+
+  def last_junction_pairs_x_product(path) do
+    junction_boxes =
+      File.read!(path)
+      |> String.split("\r\n", trim: true)
+      |> Enum.map(&String.split(&1, ",", trim: true))
+      |> Enum.map(fn [x, y, z] ->
+        {String.to_integer(x), String.to_integer(y), String.to_integer(z)}
+      end)
+
+    junction_pairs =
+      Enum.with_index(junction_boxes)
+      |> Enum.flat_map(fn {j1, i} ->
+        junction_boxes
+        |> Enum.drop(i + 1)
+        |> Enum.map(fn j2 -> {j1, j2, distance(j1, j2)} end)
+      end)
+      |> Enum.sort_by(fn {_j1, _j2, dist} -> dist end)
+
+    base_junction_map = init_union_find(junction_boxes)
+
+    {last_pair, _junction_map} =
+      junction_pairs
+      |> Enum.reduce_while({nil, base_junction_map}, fn {j1, j2, _dist} = pair, {_previous_pair, map} ->
+        new_map = union(map, j1, j2)
+
+        num_circuits = count_circuits(junction_boxes, new_map)
+
+        if num_circuits == 1 do
+          {:halt, {pair, new_map}}
+        else
+          {:cont, {pair, new_map}}
+        end
+      end)
+
+    {{x1, _y1, _z1}, {x2, _y2, _z2}, _dist} = last_pair
+    x1 * x2
+
+  end
+
+  defp count_circuits(junction_boxes, parent_map) do
+    junction_boxes
+    |> Enum.map(fn box -> find_parent(parent_map, box) end)
+    |> Enum.uniq()
+    |> length()
+  end
 
 end
