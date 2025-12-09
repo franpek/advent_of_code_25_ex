@@ -120,7 +120,8 @@ defmodule Playground do
 
     {last_pair, _junction_map} =
       junction_pairs
-      |> Enum.reduce_while({nil, base_junction_map}, fn {j1, j2, _dist} = pair, {_previous_pair, map} ->
+      |> Enum.reduce_while({nil, base_junction_map}, fn {j1, j2, _dist} = pair,
+                                                        {_previous_pair, map} ->
         new_map = union(map, j1, j2)
 
         num_circuits = count_circuits(junction_boxes, new_map)
@@ -134,7 +135,6 @@ defmodule Playground do
 
     {{x1, _y1, _z1}, {x2, _y2, _z2}, _dist} = last_pair
     x1 * x2
-
   end
 
   defp count_circuits(junction_boxes, parent_map) do
@@ -143,5 +143,4 @@ defmodule Playground do
     |> Enum.uniq()
     |> length()
   end
-
 end
